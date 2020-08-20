@@ -1,0 +1,10 @@
+version: "3"
+services:
+    airquality:
+        container_name: airquality
+        image: farktronix/purpleair_influx:latest
+        restart: always
+        environment:
+            SENSOR_ID: "15091"
+            INFLUX_URL: "influx.home.rkas.net"
+            INFLUX_DB: "FWAP"
