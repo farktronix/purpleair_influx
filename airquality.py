@@ -24,9 +24,9 @@ def averageRoundPM(sensors, valueName):
 
 
 def createInfluxPMMeasurements(results):
-    stats = json.loads(results['Stats'])
+    stats = results
     print("Creating measurements for " + str(stats))
-    time = datetime.datetime.utcfromtimestamp(stats['lastModified']/1000)
+    time = datetime.datetime.utcfromtimestamp(json.loads(results['Stats'])['lastModified']/1000)
     baseMeasurement={
             "measurement" : "airquality",
             "tags" : {
@@ -37,11 +37,11 @@ def createInfluxPMMeasurements(results):
             "time" : time
     }
     pm10=baseMeasurement.copy()
-    pm10['fields'] = {"pm10" : float(results['pm1_0_atm_1'])}
+    pm10['fields'] = {"pm10" : float(results['pm1_0_atm'])}
     pm25=baseMeasurement.copy()
-    pm25['fields'] = {"pm25" : float(results['pm2_5_atm_1'])}
+    pm25['fields'] = {"pm25" : float(results['pm2_5_atm'])}
     pm100=baseMeasurement.copy()
-    pm100['fields'] = {"pm100" : float(results['pm10_0_atm_1'])}
+    pm100['fields'] = {"pm100" : float(results['pm10_0_atm'])}
 
     return [pm10, pm25, pm100]
 
@@ -75,6 +75,7 @@ if data is None or data['results'] is None:
     print("No valid data returned: "+str(data))
     sys.exit(0)
 
+print(data)
 
 client = InfluxDBClient(host=influxURL)
 client.switch_database(influxDBName)
