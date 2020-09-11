@@ -37,11 +37,11 @@ def createInfluxPMMeasurements(results):
             "time" : time
     }
     pm10=baseMeasurement.copy()
-    pm10['fields'] = {"pm10" : float(results['pm1_0_cf_1'])}
+    pm10['fields'] = {"pm10" : float(results['pm1_0_atm_1'])}
     pm25=baseMeasurement.copy()
-    pm25['fields'] = {"pm25" : float(results['pm2_5_cf_1'])}
+    pm25['fields'] = {"pm25" : float(results['pm2_5_atm_1'])}
     pm100=baseMeasurement.copy()
-    pm100['fields'] = {"pm100" : float(results['pm10_0_cf_1'])}
+    pm100['fields'] = {"pm100" : float(results['pm10_0_atm_1'])}
 
     return [pm10, pm25, pm100]
 

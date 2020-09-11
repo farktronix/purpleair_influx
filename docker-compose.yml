@@ -5,6 +5,6 @@ services:
         image: farktronix/purpleair_influx:latest
         restart: always
         environment:
-            SENSOR_ID: "15091"
+            SENSOR_ID: "64013"
             INFLUX_URL: "influx.home.rkas.net"
             INFLUX_DB: "FWAP"
