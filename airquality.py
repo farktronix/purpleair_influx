@@ -7,7 +7,7 @@ import sys
 import datetime
 from influxdb import InfluxDBClient
 
-url="https://www.purpleair.com/json?show="
+url="https://api.purpleair.com/v1/sensors/%s?api_key=%s&fields=name%%2Cpm1.0_atm%%2Cpm2.5_atm%%2Cpm10.0_atm"
 
 testjson=None
 
@@ -26,28 +26,30 @@ def averageRoundPM(sensors, valueName):
 def createInfluxPMMeasurements(results):
     stats = results
     print("Creating measurements for " + str(stats))
-    time = datetime.datetime.utcfromtimestamp(json.loads(results['Stats'])['lastModified']/1000)
+    time = datetime.datetime.utcfromtimestamp(results['data_time_stamp']/1000)
+    sensor = results['sensor']
     baseMeasurement={
             "measurement" : "airquality",
             "tags" : {
                 "location" : "Outside",
-                "host" : results['Label'],
+                "host" : sensor['name'],
                 "sensor" : "PurpleAir",
             },
             "time" : time
     }
     pm10=baseMeasurement.copy()
-    pm10['fields'] = {"pm10" : float(results['pm1_0_atm'])}
+    pm10['fields'] = {"pm10" : float(sensor['pm1.0_atm'])}
     pm25=baseMeasurement.copy()
-    pm25['fields'] = {"pm25" : float(results['pm2_5_atm'])}
+    pm25['fields'] = {"pm25" : float(sensor['pm2.5_atm'])}
     pm100=baseMeasurement.copy()
-    pm100['fields'] = {"pm100" : float(results['pm10_0_atm'])}
+    pm100['fields'] = {"pm100" : float(sensor['pm10.0_atm'])}
 
     return [pm10, pm25, pm100]
 
 
 try: 
     sensorID=os.environ['SENSOR_ID']
+    apiKey=os.environ['API_KEY']
 except:
     print("ERROR: SENSOR_ID environment variable is not defined. Exiting")
     sys.exit(1)
@@ -66,12 +68,13 @@ except:
 
 data = None
 if testjson is None:
-    with urllib.request.urlopen(url+str(sensorID)) as req:
+    fullURL = url % (sensorID, apiKey)
+    with urllib.request.urlopen(fullURL) as req:
         data = json.loads(req.read().decode())
 else:
     data = json.loads(testjson)
 
-if data is None or data['results'] is None:
+if data is None or data['sensor'] is None:
     print("No valid data returned: "+str(data))
     sys.exit(0)
 
@@ -80,13 +83,10 @@ print(data)
 client = InfluxDBClient(host=influxURL)
 client.switch_database(influxDBName)
 
-results=data['results']
-
 influxData=[]
-for result in results:
-    influxData = influxData + createInfluxPMMeasurements(result)
+influxData = influxData + createInfluxPMMeasurements(data)
 
 print("Fetched sensor values from PurpleAir: \n" + str(data))
 print("Influx data is \n" + str(influxData))
 
-client.write_points(influxData)
+#client.write_points(influxData)
