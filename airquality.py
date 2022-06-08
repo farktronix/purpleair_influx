@@ -27,7 +27,7 @@ def averageRoundPM(sensors, valueName):
 def createInfluxPMMeasurements(results):
     stats = results
     print("Creating measurements for " + str(stats))
-    time = datetime.datetime.utcfromtimestamp(results['data_time_stamp']/1000)
+    time = datetime.datetime.utcfromtimestamp(results['data_time_stamp'])
     sensor = results['sensor']
     baseMeasurement={
             "measurement" : "airquality",
