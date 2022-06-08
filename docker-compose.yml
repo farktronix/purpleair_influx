@@ -8,3 +8,8 @@ services:
             SENSOR_ID: "64013"
             INFLUX_URL: "influx.home.rkas.net"
             INFLUX_DB: "FWAP"
+        secrets:
+            - apikey
+secrets:
+    apikey:
+      file: apikey.txt

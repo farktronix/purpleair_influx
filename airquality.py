@@ -8,6 +8,7 @@ import datetime
 from influxdb import InfluxDBClient
 
 url="https://api.purpleair.com/v1/sensors/%s?api_key=%s&fields=name%%2Cpm1.0_atm%%2Cpm2.5_atm%%2Cpm10.0_atm"
+apiKeyPath="/run/secrets/apikey"
 
 testjson=None
 
@@ -49,9 +50,16 @@ def createInfluxPMMeasurements(results):
 
 try: 
     sensorID=os.environ['SENSOR_ID']
-    apiKey=os.environ['API_KEY']
 except:
     print("ERROR: SENSOR_ID environment variable is not defined. Exiting")
+    sys.exit(1)
+
+try: 
+    apiKeyFile=open(apiKeyPath, 'r')
+    apiKey=apiKeyFile.readline().rstrip()
+    apiKeyFile.close()
+except:
+    print("ERROR: API key does not exist at " + apiKeyPath + ". Exiting")
     sys.exit(1)
 
 try: 
